@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>hello</title>
+</head>
+<body>
+<ul>
+    {% for count in counts %}
+        <li>
+            入住率:{{ count.0 }},企业名称：{{ count.1 }}
+        </li>
+    {% endfor %}
+</ul>
+</body>
+</html>

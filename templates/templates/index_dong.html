@@ -1,0 +1,184 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>入住率均值区间按月动态分布图</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<!-- VENDOR CSS -->
+    <link rel="stylesheet" href="{% static "assets/vendor/bootstrap/css/bootstrap.min.css" %}">
+    <link rel="stylesheet" href="{% static "assets/vendor/font-awesome/css/font-awesome.min.css" %}">
+    <link rel="stylesheet" href="{% static "assets/vendor/linearicons/style.css" %}">
+    <link rel="stylesheet" href="{% static "assets/vendor/chartist/css/chartist-custom.css" %}">
+    <!-- MAIN CSS -->
+    <link rel="stylesheet" href="{% static "assets/css/main.css" %}">
+    <!-- FOR DEMO PURPOSES ONLY. You should remove this in your project -->
+    <link rel="stylesheet" href="{% static "assets/css/demo.css" %}">
+    <!-- GOOGLE FONTS -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700" rel="stylesheet">
+    <!-- ICONS -->
+    <link rel="apple-touch-icon" sizes="76x76" href="{% static "assets/img/apple-icon.png" %}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{% static "assets/img/favicon.png" %}">
+
+{#    <link rel="stylesheet" href="{% static "assets/css/carousel.css" %}">#}
+{#    <link rel="stylesheet" href="{% static "assets/css/echartsHome.css" %}">#}
+
+{#    <script src="{% static "assets/js/codemirror.js" %}"></script>#}
+{#    <link href="{% static "assets/css/codemirror.css" %}" rel="stylesheet">#}
+{#    <link href="{% static "assets/css/monokai.css" %}" rel="stylesheet">#}
+</head>
+
+<body>
+	<!-- WRAPPER -->
+	<div id="wrapper">
+		<!-- NAVBAR -->
+        {% include "templates/common/navbar.html" %}
+		<!-- END NAVBAR -->
+		<!-- LEFT SIDEBAR -->
+        {% include "templates/common/left_sidebar.html" %}
+		<!-- END LEFT SIDEBAR -->
+		<!-- MAIN -->
+		<div class="main">
+			<!-- MAIN CONTENT -->
+			<div class="main-content">
+				<div class="container-fluid">
+                    <form action="" method="post">
+                        {%csrf_token%}
+                    </form>
+					<div class="row">
+						<div class="col-md-12">
+							<!-- TASKS -->
+							<div class="panel">
+								<div class="panel-heading">
+{#									<h3 class="panel-title">My Tasks</h3>#}
+									<div class="right">
+{#										<button type="button" class="btn-toggle-collapse"><i class="lnr lnr-chevron-up"></i></button>#}
+{#										<button type="button" class="btn-remove"><i class="lnr lnr-cross"></i></button>#}
+									</div>
+								</div>
+								<div  id="main" style="height: 600px;" class="panel-body"></div>
+							</div>
+							<!-- END TASKS -->
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- END MAIN CONTENT -->
+		</div>
+		<!-- END MAIN -->
+		<div class="clearfix"></div>
+        <!-- START FOOTER -->
+        {% include "templates/common/footer.html" %}
+        <!-- END FOOTER -->
+	</div>
+	<!-- END WRAPPER -->
+	<!-- Javascript -->
+    <script src="{% static "assets/vendor/jquery/jquery.min.js" %}"></script>
+    <script src="{% static "assets/vendor/bootstrap/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "assets/scripts/echarts.js" %}"></script>
+	<script type="application/javascript">
+    let timeline_data =[],series = [],series_first=[],index=0,result = {{ result|safe }},total=0;
+    const m_name = ['=0%','0%-10%','10%-20%','20%-30%','30%-40%','40%-50%','50%-60%','60%-70%','70%-80%','%80-90%','90%-100%'];
+    
+    for( let j =0; j<result.length; j++ ){
+        let arr = [], arrData = []  ;
+        for ( let i = 0;i<result[j].length; i++ ) {
+            if (i === 0) continue;
+            arrData.push({
+                value: result[j][i],  name:m_name[i-1]
+            });
+        }
+        if( j === 0 ){
+            series_first.push({
+                name:result[j][0],
+                type:'pie',
+                center: ['50%', '45%'],
+                radius: '50%',
+                data:arrData
+            });
+        }
+        arr.push({
+            name:result[j][0],
+            type:'pie',
+            data:arrData
+        });
+        {#console.log(arr);#}
+        series.push(arr);
+        timeline_data.push(result[j][0]);
+    }
+
+    // 基于准备好的dom，初始化echarts实例
+    let myChart = echarts.init(document.getElementById('main'));
+
+    // 指定图表的配置项和数据
+    {#let idx = 1;#}
+    let option = {
+        timeline : {
+            data : timeline_data,
+            label : {
+                formatter :  function(s) {
+                    {#return s.slice(0, 4);#}
+                    let str = new Date(s).getFullYear()+'-'+(new Date(s).getMonth()+1);
+                    return str.slice(2,7);
+                }
+            }
+        },
+        options : [
+            {
+                title : {
+                    text: '入住率按月动态分布图',
+                    subtext: '月平均值'
+                },
+                tooltip : {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b} : {c} ({d}%)"
+                },
+                legend: {
+                    data:m_name
+                },
+                toolbox: {
+                    show : true,
+                    feature : {
+                        mark : {show: true},
+                        dataView : {show: true, readOnly: false},
+                        magicType : {
+                            show: true,
+                            type: ['pie', 'funnel'],
+                            option: {
+                                funnel: {
+                                    x: '25%',
+                                    width: '50%',
+                                    funnelAlign: 'left',
+                                    max: 1700
+                                }
+                            }
+                        },
+                        restore : {show: true},
+                        saveAsImage : {show: true}
+                    }
+                },
+                series : series_first
+            }
+        ]
+    };
+
+    for ( let m=1; m<series.length; m++ ){
+        option.options.push({series:series[m]});
+    }
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+
+
+    $('.sidebar-scroll .nav a').removeClass('active');
+    $('.lnr-index').parent().addClass('active')
+	</script>
+    <script src="{% static "assets/scripts/echarts.js" %}"></script>
+    <script src="{% static "assets/js/codemirror.js" %}"></script>
+    <script src="{% static "assets/js/javascript.js" %}"></script>
+    <link href="{% static "assets/css/codemirror.css" %}" rel="stylesheet">
+    <link href="{% static "assets/css/monokai.css" %}" rel="stylesheet">
+</body>
+
+</html>

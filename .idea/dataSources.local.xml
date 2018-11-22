@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="dataSourceStorageLocal">
+    <data-source name="酒店数据本地pg数据库" uuid="bb0586b1-76c9-44dc-8601-1c8163ed0cf8">
+      <database-info product="PostgreSQL" version="9.5.3" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.2.2">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>hotel_loan_dev</user-name>
+      <introspection-schemas>hotel_loan_dev:public</introspection-schemas>
+    </data-source>
+  </component>
+</project>
